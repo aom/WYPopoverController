@@ -1581,9 +1581,14 @@ static CGFloat edgeSizeFromCornerRadius(CGFloat cornerRadius) {
     {
         containerView.alpha = 0;
         [viewController viewWillAppear:YES];
-        
+
+        CGAffineTransform transform = [self transformForArrowDirection:containerView.arrowDirection];
+        transform = CGAffineTransformScale(transform, 0, 0);
+        containerView.transform = transform;
+
         [UIView animateWithDuration:WY_POPOVER_DEFAULT_ANIMATION_DURATION animations:^{
             containerView.alpha = 1;
+            containerView.transform = CGAffineTransformIdentity;
         } completion:^(BOOL finished) {
             if ([viewController isKindOfClass:[UINavigationController class]] == NO)
             {
@@ -1624,6 +1629,36 @@ static CGFloat edgeSizeFromCornerRadius(CGFloat cornerRadius) {
                                                  selector:@selector(keyboardWillHide:)
                                                      name:UIKeyboardWillHideNotification object:nil];
     }
+}
+
+- (CGAffineTransform)transformForArrowDirection:(WYPopoverArrowDirection)arrowDirection {
+    CGAffineTransform transform = CGAffineTransformIdentity;
+
+    if (containerView.arrowHeight > 0)
+        {
+            CGSize containerViewSize = containerView.frame.size;
+
+            if (arrowDirection == WYPopoverArrowDirectionDown)
+            {
+                transform = CGAffineTransformTranslate(CGAffineTransformIdentity, containerView.arrowOffset, containerViewSize.height / 2);
+            }
+
+            if (arrowDirection == WYPopoverArrowDirectionUp)
+            {
+                transform = CGAffineTransformTranslate(CGAffineTransformIdentity, containerView.arrowOffset, -containerViewSize.height / 2);
+            }
+
+            if (arrowDirection == WYPopoverArrowDirectionRight)
+            {
+                transform = CGAffineTransformTranslate(CGAffineTransformIdentity, containerView.frame.size.width / 2, containerView.arrowOffset);
+            }
+
+            if (arrowDirection == WYPopoverArrowDirectionLeft)
+            {
+                transform = CGAffineTransformTranslate(CGAffineTransformIdentity, -containerView.frame.size.width / 2, containerView.arrowOffset);
+            }
+        }
+    return transform;
 }
 
 - (void)setPopoverNavigationBarBackgroundImage
